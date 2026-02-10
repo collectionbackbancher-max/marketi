@@ -1,69 +1,41 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { Calendar, Sparkles, Loader2, FileText } from 'lucide-react';
-
-interface MarketingStrategy {
-  id: string;
-  title: string;
-  content: string;
-  week_of: string;
-  created_at: string;
-}
+import { Sparkles, Loader2, TrendingUp, CheckCircle, Target } from 'lucide-react';
 
 interface BusinessProfile {
   business_name: string;
+  industry: string;
+  city: string;
 }
 
-export const Dashboard = ({ onEditProfile }: { onEditProfile: () => void }) => {
+export const Dashboard = () => {
   const { user } = useAuth();
-  const [strategies, setStrategies] = useState<MarketingStrategy[]>([]);
   const [profile, setProfile] = useState<BusinessProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadData();
+    loadProfile();
   }, [user]);
 
-  const loadData = async () => {
+  const loadProfile = async () => {
     if (!user) return;
 
     setLoading(true);
     try {
-      const [strategiesResult, profileResult] = await Promise.all([
-        supabase
-          .from('marketing_strategies')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('week_of', { ascending: false }),
-        supabase
-          .from('business_profiles')
-          .select('business_name')
-          .eq('user_id', user.id)
-          .maybeSingle(),
-      ]);
+      const { data, error } = await supabase
+        .from('business_profiles')
+        .select('business_name, industry, city')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-      if (strategiesResult.data) {
-        setStrategies(strategiesResult.data);
-      }
-
-      if (profileResult.data) {
-        setProfile(profileResult.data);
-      }
+      if (error) throw error;
+      setProfile(data);
     } catch (err) {
-      console.error('Error loading data:', err);
+      console.error('Error loading profile:', err);
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    });
   };
 
   if (loading) {
@@ -75,67 +47,97 @@ export const Dashboard = ({ onEditProfile }: { onEditProfile: () => void }) => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              {profile?.business_name ? `${profile.business_name}'s Strategies` : 'Your Marketing Strategies'}
-            </h1>
-            <p className="text-gray-600 mt-1">Weekly insights to grow your business</p>
+    <div className="max-w-6xl mx-auto p-8">
+      <div className="mb-12">
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          {profile?.business_name ? `Welcome to ${profile.business_name}` : 'Welcome!'}
+        </h1>
+        <p className="text-gray-600 text-lg">
+          {profile ? `${profile.industry} | ${profile.city}` : 'Let\'s grow your business together'}
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-gray-600 font-medium">This Week's Strategy</h3>
+            <div className="bg-blue-100 p-3 rounded-lg">
+              <Sparkles className="w-5 h-5 text-blue-600" />
+            </div>
           </div>
-          <button
-            onClick={onEditProfile}
-            className="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition"
-          >
-            Edit Profile
-          </button>
+          <p className="text-4xl font-bold text-gray-900 mb-2">Coming Soon</p>
+          <p className="text-sm text-gray-600">Your AI-powered strategy will arrive this week</p>
+        </div>
+
+        <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-gray-600 font-medium">Tasks to Complete</h3>
+            <div className="bg-green-100 p-3 rounded-lg">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+            </div>
+          </div>
+          <p className="text-4xl font-bold text-gray-900 mb-2">0</p>
+          <p className="text-sm text-gray-600">Action items from your strategies</p>
+        </div>
+
+        <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-gray-600 font-medium">Growth This Month</h3>
+            <div className="bg-purple-100 p-3 rounded-lg">
+              <TrendingUp className="w-5 h-5 text-purple-600" />
+            </div>
+          </div>
+          <p className="text-4xl font-bold text-gray-900 mb-2">0%</p>
+          <p className="text-sm text-gray-600">Track your progress here</p>
         </div>
       </div>
 
-      {strategies.length === 0 ? (
-        <div className="bg-gradient-to-br from-blue-50 to-slate-50 rounded-2xl p-12 text-center">
-          <div className="bg-white w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
-            <Sparkles className="w-10 h-10 text-blue-600" />
-          </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-3">
-            Your first strategy is on the way
-          </h3>
-          <p className="text-gray-600 max-w-md mx-auto">
-            We're preparing personalized marketing strategies for your business.
-            Check back soon to see your weekly insights.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {strategies.map((strategy) => (
-            <div
-              key={strategy.id}
-              className="bg-white rounded-2xl shadow-md hover:shadow-lg transition p-8 border border-gray-100"
-            >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="bg-blue-100 p-3 rounded-xl shrink-0">
-                  <FileText className="w-6 h-6 text-blue-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    {strategy.title}
-                  </h3>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Calendar className="w-4 h-4" />
-                    <span>Week of {formatDate(strategy.week_of)}</span>
-                  </div>
-                </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Getting Started</h2>
+          <div className="space-y-4">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <span className="text-blue-600 font-semibold">1</span>
               </div>
-              <div className="prose prose-sm max-w-none">
-                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                  {strategy.content}
-                </div>
+              <div>
+                <h3 className="font-medium text-gray-900">Profile Complete</h3>
+                <p className="text-sm text-gray-600 mt-1">Your business information is set up</p>
               </div>
             </div>
-          ))}
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <span className="text-blue-600 font-semibold">2</span>
+              </div>
+              <div>
+                <h3 className="font-medium text-gray-900">First Strategy Coming</h3>
+                <p className="text-sm text-gray-600 mt-1">We're preparing your personalized strategy</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                <span className="text-gray-600 font-semibold">3</span>
+              </div>
+              <div>
+                <h3 className="font-medium text-gray-900">Take Action</h3>
+                <p className="text-sm text-gray-600 mt-1">Implement strategies and track results</p>
+              </div>
+            </div>
+          </div>
         </div>
-      )}
+
+        <div className="bg-gradient-to-br from-blue-50 to-slate-50 rounded-2xl p-8 border border-blue-100">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-blue-600 p-2 rounded-lg">
+              <Target className="w-5 h-5 text-white" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900">Pro Tip</h2>
+          </div>
+          <p className="text-gray-700 leading-relaxed">
+            The more detailed information you provide in your profile, the more tailored and effective your marketing strategies will be. Visit your Profile page to add more details about your target audience, goals, and budget.
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

@@ -3,17 +3,20 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Auth } from './components/Auth';
 import { BusinessProfileForm } from './components/BusinessProfileForm';
 import { Dashboard } from './components/Dashboard';
-import { Header } from './components/Header';
+import { WeeklyStrategy } from './components/WeeklyStrategy';
+import { Progress } from './components/Progress';
+import { ProfilePage } from './components/ProfilePage';
+import { Layout } from './components/Layout';
 import { supabase } from './lib/supabase';
 import { Loader2 } from 'lucide-react';
 
-type View = 'dashboard' | 'profile';
+type Page = 'dashboard' | 'strategy' | 'progress' | 'profile';
 
 function AppContent() {
   const { user, loading: authLoading } = useAuth();
   const [hasProfile, setHasProfile] = useState(false);
   const [checkingProfile, setCheckingProfile] = useState(true);
-  const [currentView, setCurrentView] = useState<View>('dashboard');
+  const [currentPage, setCurrentPage] = useState<Page>('dashboard');
 
   useEffect(() => {
     if (user) {
@@ -36,7 +39,9 @@ function AppContent() {
 
       if (error) throw error;
       setHasProfile(!!data);
-      setCurrentView(data ? 'dashboard' : 'profile');
+      if (!data) {
+        setCurrentPage('dashboard');
+      }
     } catch (err) {
       console.error('Error checking profile:', err);
     } finally {
@@ -46,11 +51,11 @@ function AppContent() {
 
   const handleProfileComplete = () => {
     setHasProfile(true);
-    setCurrentView('dashboard');
+    setCurrentPage('dashboard');
   };
 
-  const handleEditProfile = () => {
-    setCurrentView('profile');
+  const handleNavigate = (page: Page) => {
+    setCurrentPage(page);
   };
 
   if (authLoading || checkingProfile) {
@@ -65,15 +70,29 @@ function AppContent() {
     return <Auth />;
   }
 
+  if (!hasProfile) {
+    return <BusinessProfileForm onComplete={handleProfileComplete} />;
+  }
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'strategy':
+        return <WeeklyStrategy />;
+      case 'progress':
+        return <Progress />;
+      case 'profile':
+        return <ProfilePage />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      {currentView === 'dashboard' && hasProfile ? (
-        <Dashboard onEditProfile={handleEditProfile} />
-      ) : (
-        <BusinessProfileForm onComplete={handleProfileComplete} />
-      )}
-    </div>
+    <Layout currentPage={currentPage} onNavigate={handleNavigate}>
+      {renderPage()}
+    </Layout>
   );
 }
 
