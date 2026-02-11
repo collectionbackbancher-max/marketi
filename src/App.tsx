@@ -4,13 +4,14 @@ import { Auth } from './components/Auth';
 import { BusinessProfileForm } from './components/BusinessProfileForm';
 import { Dashboard } from './components/Dashboard';
 import { WeeklyStrategy } from './components/WeeklyStrategy';
+import { WeeklyStrategyPage } from './components/WeeklyStrategyPage';
 import { Progress } from './components/Progress';
 import { ProfilePage } from './components/ProfilePage';
 import { Layout } from './components/Layout';
 import { supabase } from './lib/supabase';
 import { Loader2 } from 'lucide-react';
 
-type Page = 'dashboard' | 'strategy' | 'progress' | 'profile';
+type Page = 'dashboard' | 'strategy' | 'weekly-strategy' | 'progress' | 'profile';
 
 function AppContent() {
   const { user, loading: authLoading } = useAuth();
@@ -80,6 +81,8 @@ function AppContent() {
         return <Dashboard />;
       case 'strategy':
         return <WeeklyStrategy />;
+      case 'weekly-strategy':
+        return <WeeklyStrategyPage />;
       case 'progress':
         return <Progress />;
       case 'profile':

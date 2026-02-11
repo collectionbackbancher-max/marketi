@@ -28,7 +28,7 @@ export const Layout = ({ children, currentPage, onNavigate }: LayoutProps) => {
       icon: <LayoutDashboard className="w-5 h-5" />,
     },
     {
-      id: 'strategy',
+      id: 'weekly-strategy',
       label: 'Weekly Strategy',
       icon: <Zap className="w-5 h-5" />,
     },
