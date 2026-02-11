@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { Loader2, Lightbulb, Clock, Award, CheckCircle2, Copy } from 'lucide-react';
+import { ProgressChecklist } from './ProgressChecklist';
 
 interface WeeklyRecommendation {
   id: string;
@@ -161,6 +162,12 @@ export const WeeklyStrategyPage = () => {
           </div>
         )}
       </div>
+
+      {stepsList.length > 0 && (
+        <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm mb-8">
+          <ProgressChecklist recommendationId={recommendation.id} steps={stepsList} />
+        </div>
+      )}
 
       <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-6 border border-amber-200">
         <div className="flex items-start gap-3">
