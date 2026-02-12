@@ -7,11 +7,12 @@ import { WeeklyStrategy } from './components/WeeklyStrategy';
 import { WeeklyStrategyPage } from './components/WeeklyStrategyPage';
 import { Progress } from './components/Progress';
 import { ProfilePage } from './components/ProfilePage';
+import { StrategyHistoryPage } from './components/StrategyHistoryPage';
 import { Layout } from './components/Layout';
 import { supabase } from './lib/supabase';
 import { Loader2 } from 'lucide-react';
 
-type Page = 'dashboard' | 'strategy' | 'weekly-strategy' | 'progress' | 'profile';
+type Page = 'dashboard' | 'strategy' | 'weekly-strategy' | 'progress' | 'profile' | 'strategy-history';
 
 function AppContent() {
   const { user, loading: authLoading } = useAuth();
@@ -59,6 +60,10 @@ function AppContent() {
     setCurrentPage(page);
   };
 
+  const handleSelectStrategy = () => {
+    setCurrentPage('weekly-strategy');
+  };
+
   if (authLoading || checkingProfile) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -87,6 +92,8 @@ function AppContent() {
         return <Progress />;
       case 'profile':
         return <ProfilePage />;
+      case 'strategy-history':
+        return <StrategyHistoryPage onSelectStrategy={handleSelectStrategy} />;
       default:
         return <Dashboard />;
     }

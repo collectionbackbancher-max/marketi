@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { TrendingUp, LogOut, LayoutDashboard, Zap, TrendingUpIcon, User } from 'lucide-react';
+import { TrendingUp, LogOut, LayoutDashboard, Zap, TrendingUpIcon, User, HistoryIcon } from 'lucide-react';
 
 interface NavItem {
   id: string;
@@ -31,6 +31,11 @@ export const Layout = ({ children, currentPage, onNavigate }: LayoutProps) => {
       id: 'weekly-strategy',
       label: 'Weekly Strategy',
       icon: <Zap className="w-5 h-5" />,
+    },
+    {
+      id: 'strategy-history',
+      label: 'Strategy History',
+      icon: <HistoryIcon className="w-5 h-5" />,
     },
     {
       id: 'progress',
