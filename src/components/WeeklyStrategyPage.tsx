@@ -78,7 +78,7 @@ export const WeeklyStrategyPage = () => {
     );
   }
 
-  const stepsList = Array.isArray(recommendation.step_by_step_actions)
+  const stepsList: string[] = Array.isArray(recommendation.step_by_step_actions)
     ? recommendation.step_by_step_actions
     : typeof recommendation.step_by_step_actions === 'string'
       ? JSON.parse(recommendation.step_by_step_actions)

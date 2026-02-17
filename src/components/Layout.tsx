@@ -1,17 +1,18 @@
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { TrendingUp, LogOut, LayoutDashboard, Zap, TrendingUpIcon, User, HistoryIcon } from 'lucide-react';
+import type { Page } from '../types';
 
 interface NavItem {
-  id: string;
+  id: Page;
   label: string;
   icon: React.ReactNode;
 }
 
 interface LayoutProps {
   children: React.ReactNode;
-  currentPage: string;
-  onNavigate: (page: string) => void;
+  currentPage: Page;
+  onNavigate: (page: Page) => void;
 }
 
 export const Layout = ({ children, currentPage, onNavigate }: LayoutProps) => {

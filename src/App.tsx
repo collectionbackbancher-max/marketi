@@ -11,8 +11,7 @@ import { StrategyHistoryPage } from './components/StrategyHistoryPage';
 import { Layout } from './components/Layout';
 import { supabase } from './lib/supabase';
 import { Loader2 } from 'lucide-react';
-
-type Page = 'dashboard' | 'strategy' | 'weekly-strategy' | 'progress' | 'profile' | 'strategy-history';
+import type { Page } from './types';
 
 function AppContent() {
   const { user, loading: authLoading } = useAuth();
